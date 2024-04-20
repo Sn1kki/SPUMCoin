@@ -72,7 +72,7 @@ def help_message(message):
     markup.add(btn1, btn2, btn3)
 
 
-    bot.send_message(chat_id, text,reply_markup=markup)
+    bot.send_message(chat_id, text, reply_markup=markup)
 
 @bot.message_handler(content_types=['text'])
 def text_message(message):

@@ -1,5 +1,6 @@
 import random
 # user_id
+# chat_id
 # language
 # start_use
 
