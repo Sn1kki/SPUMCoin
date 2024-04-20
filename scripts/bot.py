@@ -7,6 +7,11 @@ with open("token.txt", 'r') as token_file:
 
 bot = telebot.TeleBot(token)
 
+basic_markup = types.ReplyKeyboardMarkup(resize_keyboard=True,row_width=1 ,one_time_keyboard=True)
+bnt_bm = types.KeyboardButton("hide me")
+basic_markup.add(bnt_bm)
+
+hide_markup = types.ReplyKeyboardRemove()
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -31,12 +36,13 @@ def callback(callback):
     chat_id = callback.message.chat.id
     if callback.data == 'btn1':
         text = (
-            "None"
+            "Welcome to SPUMCoin!\n"
+            "Try /help command"
         )
         bot.send_message(chat_id, text)
     elif callback.data == 'btn2':
         text = (
-            "Рад вас видеть в моём  боте.\n"
+            "Добро пожаловать в SPUMCoin.\n"
             "Попробуйте команду /help"
         )
         bot.send_message(chat_id, text)
@@ -59,12 +65,36 @@ def help_message(message):
     if database.exp_language() == "ru": text = text_ru
     else: text = text_us
 
+    markup = types.ReplyKeyboardMarkup(row_width=1,resize_keyboard=True,one_time_keyboard=True)
+    btn1 = types.KeyboardButton('✳ Изменить язык')
+    btn2 = types.KeyboardButton('🛠 Команды')
+    btn3 = types.KeyboardButton('🛎 Связаться с поддержкой')
+    markup.add(btn1, btn2, btn3)
 
-    bot.send_message(chat_id, text)
+
+    bot.send_message(chat_id, text,reply_markup=markup)
 
 @bot.message_handler(content_types=['text'])
-def send_welcome(message):
-    bot.delete_message(message.chat.id, message.id)
+def text_message(message):
 
+    chat_id = message.chat.id
+    if message.text == "✳ Изменить язык": pass
+
+
+def language_change(message):
+    chat_id = message.chat.id
+    text_us = (
+        "\n"
+        "Choose your language\n"
+    )
+
+    text = text_us
+
+    btn = types.InlineKeyboardMarkup(row_width=1)
+    btn1 = types.InlineKeyboardButton(text='English', callback_data='btn1')
+    btn2 = types.InlineKeyboardButton(text='Russian', callback_data='btn2')
+    btn.add(btn1, btn2)
+
+    bot.send_message(chat_id, text, reply_markup=btn)
 
 bot.polling(non_stop=True)
