@@ -6,12 +6,13 @@ with open("token.txt", 'r') as token_file:
     token: str = token_file.read()
 
 bot = telebot.TeleBot(token)
-
+"""
 basic_markup = types.ReplyKeyboardMarkup(resize_keyboard=True,row_width=1 ,one_time_keyboard=True)
 bnt_bm = types.KeyboardButton("hide me")
 basic_markup.add(bnt_bm)
 
 hide_markup = types.ReplyKeyboardRemove()
+"""
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
