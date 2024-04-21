@@ -98,4 +98,4 @@ def language_change(message):
 
     bot.send_message(chat_id, text, reply_markup=btn)
 
-bot.polling(non_stop=True)
+bot.polling(non_stop=True,interval= 0)
