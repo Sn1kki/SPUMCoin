@@ -23,8 +23,8 @@ def send_welcome(message):
     )
 
     btn = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton(text='English', callback_data='us')
-    btn2 = types.InlineKeyboardButton(text='Russian', callback_data='ru')
+    btn1 = types.InlineKeyboardButton(text='English', callback_data='sus')
+    btn2 = types.InlineKeyboardButton(text='Russian', callback_data='sru')
     btn.add(btn1, btn2)
 
     bot.send_message(chat_id, text, reply_markup=btn)
@@ -33,22 +33,36 @@ def send_welcome(message):
 @bot.callback_query_handler(func= lambda callback: callback.data)
 def callback(callback):
     chat_id = callback.message.chat.id
-    if callback.data == 'us':
+    if callback.data == 'sus':
         text = (
             "Welcome to SPUMCoin!\n"
             "This bot is under development\n"
             "We apologize for the inconvenience caused\n"
             "Try /help command"
         )
-        bot.edit_message_text(text,chat_id, callback.message.id)
-    elif callback.data == 'ru':
+        bot.edit_message_text(text, chat_id, callback.message.id)
+    elif callback.data == 'sru':
         text = (
             "Добро пожаловать в SPUMCoin.\n"
             "Данный бот находится в разработке\n"
             "Приносим свои извинения за предоставленные неудобства\n"
             "Попробуйте команду /help"
         )
-        bot.edit_message_text(text,chat_id, callback.message.id)
+        bot.edit_message_text(text, chat_id, callback.message.id)
+    elif callback.data == 'eus':
+        text = (
+            "Changes complete\n"
+            "Now your interface language is english\n"
+            "Code: '<Lus>'"
+        )
+        bot.edit_message_text(text, chat_id, callback.message.id)
+    elif callback.data == 'eru':
+        text = (
+            "Изменения применены\n"
+            "Теперь язык вашего интерфейса русский\n"
+            "Code: '<Lru>'"
+        )
+        bot.edit_message_text(text, chat_id, callback.message.id)
 
 
 @bot.message_handler(commands=['help'])
@@ -82,6 +96,8 @@ def text_message(message):
 
     chat_id = message.chat.id
     if message.text == "✳ Изменить язык": language_change(message)
+    elif message.text == "🛠 Команды": commands_list(message)
+    elif message.text == '🛎 Связаться с поддержкой': technical_support(message)
 
 
 def language_change(message):
@@ -94,32 +110,28 @@ def language_change(message):
     text = text_us
 
     btn = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton(text='English', callback_data='us')
-    btn2 = types.InlineKeyboardButton(text='Russian', callback_data='ru')
+    btn1 = types.InlineKeyboardButton(text='English', callback_data='eus')
+    btn2 = types.InlineKeyboardButton(text='Russian', callback_data='eru')
     btn.add(btn1, btn2)
 
     bot.send_message(chat_id, text, reply_markup=btn)
 
-@bot.callback_query_handler(func= lambda callback: callback.data)
-def callback(callback):
-    chat_id = callback.message.chat.id
-    if callback.data == 'us':
-        text = (
-            "Welcome to SPUMCoin!\n"
-            "This bot is under development\n"
-            "We apologize for the inconvenience caused\n"
-            "Try /help command"
-        )
-        bot.edit_message_text(text,chat_id, callback.message.id)
-    elif callback.data == 'ru':
-        text = (
-            "Добро пожаловать в SPUMCoin.\n"
-            "Данный бот находится в разработке\n"
-            "Приносим свои извинения за предоставленные неудобства\n"
-            "Попробуйте команду /help"
-        )
-        bot.edit_message_text(text,chat_id, callback.message.id)
+def commands_list(message):
+    chat_id = message.chat.id
+    text = (
+        "/start -- Начинает программу\n"
+        "/help -- Вызывает меню помощи\n"
+        "/run -- Запускает игру"
+    )
+    bot.send_message(chat_id,text)
 
+def technical_support(message):
+    chat_id = message.chat.id
+    text = (
+        "Техническая поддержка сейчас не доступна\n"
+        "Code: '<Error 000>'"
+    )
+    bot.send_message(chat_id,text)
 
 @bot.message_handler(commands=['send db'])
 def send_db(message):
