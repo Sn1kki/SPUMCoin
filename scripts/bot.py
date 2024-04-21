@@ -92,8 +92,8 @@ def language_change(message):
     text = text_us
 
     btn = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton(text='English', callback_data='btn1')
-    btn2 = types.InlineKeyboardButton(text='Russian', callback_data='btn2')
+    btn1 = types.InlineKeyboardButton(text='English', callback_data='us')
+    btn2 = types.InlineKeyboardButton(text='Russian', callback_data='ru')
     btn.add(btn1, btn2)
 
     bot.send_message(chat_id, text, reply_markup=btn)

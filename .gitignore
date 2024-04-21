@@ -9,6 +9,7 @@
 *.wpd
 *.wps
 *.txt
+*.db
 
 ### Textpattern template
 .htaccess
