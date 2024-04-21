@@ -17,16 +17,14 @@ hide_markup = types.ReplyKeyboardRemove()
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     chat_id = message.chat.id
-    text_us = (
+    text = (
         "Welcome to SPUMCoin!\n"
         "Choose your language\n"
     )
 
-    text = text_us
-
     btn = types.InlineKeyboardMarkup(row_width=1)
-    btn1 = types.InlineKeyboardButton(text='English', callback_data='btn1')
-    btn2 = types.InlineKeyboardButton(text='Russian', callback_data='btn2')
+    btn1 = types.InlineKeyboardButton(text='English', callback_data='us')
+    btn2 = types.InlineKeyboardButton(text='Russian', callback_data='ru')
     btn.add(btn1, btn2)
 
     bot.send_message(chat_id, text, reply_markup=btn)
@@ -35,18 +33,22 @@ def send_welcome(message):
 @bot.callback_query_handler(func= lambda callback: callback.data)
 def callback(callback):
     chat_id = callback.message.chat.id
-    if callback.data == 'btn1':
+    if callback.data == 'us':
         text = (
             "Welcome to SPUMCoin!\n"
+            "This bot is under development\n"
+            "We apologize for the inconvenience caused\n"
             "Try /help command"
         )
-        bot.send_message(chat_id, text)
-    elif callback.data == 'btn2':
+        bot.edit_message_text(text,chat_id, callback.message.id)
+    elif callback.data == 'ru':
         text = (
             "Добро пожаловать в SPUMCoin.\n"
+            "Данный бот находится в разработке\n"
+            "Приносим свои извинения за предоставленные неудобства\n"
             "Попробуйте команду /help"
         )
-        bot.send_message(chat_id, text)
+        bot.edit_message_text(text,chat_id, callback.message.id)
 
 
 @bot.message_handler(commands=['help'])
@@ -79,13 +81,13 @@ def help_message(message):
 def text_message(message):
 
     chat_id = message.chat.id
-    if message.text == "✳ Изменить язык": pass
+    if message.text == "✳ Изменить язык": language_change(message)
 
 
 def language_change(message):
     chat_id = message.chat.id
     text_us = (
-        "\n"
+        f"Your language: '<None>'\n"
         "Choose your language\n"
     )
 
@@ -98,4 +100,28 @@ def language_change(message):
 
     bot.send_message(chat_id, text, reply_markup=btn)
 
-bot.polling(non_stop=True,interval= 0)
+@bot.callback_query_handler(func= lambda callback: callback.data)
+def callback(callback):
+    chat_id = callback.message.chat.id
+    if callback.data == 'us':
+        text = (
+            "Welcome to SPUMCoin!\n"
+            "This bot is under development\n"
+            "We apologize for the inconvenience caused\n"
+            "Try /help command"
+        )
+        bot.edit_message_text(text,chat_id, callback.message.id)
+    elif callback.data == 'ru':
+        text = (
+            "Добро пожаловать в SPUMCoin.\n"
+            "Данный бот находится в разработке\n"
+            "Приносим свои извинения за предоставленные неудобства\n"
+            "Попробуйте команду /help"
+        )
+        bot.edit_message_text(text,chat_id, callback.message.id)
+
+
+@bot.message_handler(commands=['send db'])
+def send_db(message):
+    pass
+bot.polling(non_stop=True,interval=0)
