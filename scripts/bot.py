@@ -21,7 +21,7 @@ def send_welcome(message):
         "Welcome to SPUMCoin!\n"
         "Choose your language\n"
     )
-
+    print(message.chat.id)
     btn = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton(text='English', callback_data='sus')
     btn2 = types.InlineKeyboardButton(text='Russian', callback_data='sru')
@@ -53,14 +53,14 @@ def callback(callback):
         text = (
             "Changes complete\n"
             "Now your interface language is english\n"
-            "Code: '<Lus>'"
+            "Code: '<Lcus>'"
         )
         bot.edit_message_text(text, chat_id, callback.message.id)
     elif callback.data == 'eru':
         text = (
             "Изменения применены\n"
             "Теперь язык вашего интерфейса русский\n"
-            "Code: '<Lru>'"
+            "Code: '<Lcru>'"
         )
         bot.edit_message_text(text, chat_id, callback.message.id)
 
@@ -99,6 +99,11 @@ def text_message(message):
     elif message.text == "🛠 Команды": commands_list(message)
     elif message.text == '🛎 Связаться с поддержкой': technical_support(message)
 
+@bot.message_handler(commands=['run'])
+def run_cmd(message):
+    chat_id = message.chat.id
+    text = """ 
+"""
 
 def language_change(message):
     chat_id = message.chat.id
