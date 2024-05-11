@@ -31,13 +31,10 @@ def create_user(user_id : int ) -> None:
     :param user_id: message.char.id
     :return: None
     """
-    now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    date,hour = map( str, datetime.datetime.now().strftime("%d№%m№%Y %H№%M№%S").split(" "))
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
-    cursor.execute(f"""
-    INSERT INTO Users (user_id, language, date_join, game)
-    VALUES ({user_id}, {'us'}, {now}, {'None'} )
-""")
+    cursor.execute(f"""INSERT INTO Users (user_id, language, date_join, game) VALUES ( {str(user_id)} , 'us' , {date + '№' + hour} , 'None' );""")
     conn.commit()
     cursor.close()
 
