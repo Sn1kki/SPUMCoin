@@ -21,11 +21,12 @@ def send_welcome(message):
         "Welcome to SPUMCoin!\n"
         "Choose your language\n"
     )
-    print(message.chat.id)
     btn = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton(text='English', callback_data='sus')
     btn2 = types.InlineKeyboardButton(text='Russian', callback_data='sru')
     btn.add(btn1, btn2)
+
+    database.create_user(chat_id)
 
     bot.send_message(chat_id, text, reply_markup=btn)
 
@@ -40,6 +41,9 @@ def callback(callback):
             "We apologize for the inconvenience caused\n"
             "Try /help command"
         )
+
+        database.change_information(chat_id,'language','sus')
+
         bot.edit_message_text(text, chat_id, callback.message.id)
     elif callback.data == 'sru':
         text = (
@@ -48,6 +52,9 @@ def callback(callback):
             "Приносим свои извинения за предоставленные неудобства\n"
             "Попробуйте команду /help"
         )
+
+        database.change_information(chat_id, 'language', 'sru')
+
         bot.edit_message_text(text, chat_id, callback.message.id)
     elif callback.data == 'eus':
         text = (
@@ -55,6 +62,9 @@ def callback(callback):
             "Now your interface language is english\n"
             "Code: '<Lcus>'"
         )
+
+        database.change_information(chat_id, 'language', 'cus')
+
         bot.edit_message_text(text, chat_id, callback.message.id)
     elif callback.data == 'eru':
         text = (
@@ -62,6 +72,9 @@ def callback(callback):
             "Теперь язык вашего интерфейса русский\n"
             "Code: '<Lcru>'"
         )
+
+        database.change_information(chat_id, 'language', 'cru')
+
         bot.edit_message_text(text, chat_id, callback.message.id)
 
 
