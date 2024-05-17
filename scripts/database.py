@@ -5,7 +5,8 @@ import datetime
 # user_id
 # chat_id
 # language
-# start_use
+# language_change
+# date_join
 
 
 
@@ -40,7 +41,12 @@ def create_user(user_id: int) -> None:
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
     cursor.execute(
-        f"""INSERT INTO Users (user_id, language, language_changes, date_join, game_status) VALUES ( {str(user_id)}, {'None'}, {'0'}, {int(date)}, {'None'} );""")
+    f"""
+    BEGIN TRANSACTION;
+    IF NOT EXISTS (SELECT * FROM Users WHERE user_id = '{user_id}')
+        INSERT INTO Users(user_id, language, language_changes, date_join, game_status) VALUES( {str(user_id)}, {'None'}, {'0'}, {int(date)}, {'None'} ) ;
+    COMMIT TRANSACTION;
+        """)
     conn.commit()
     cursor.close()
 
@@ -92,14 +98,13 @@ def clean_fetchone(fetchone: str) -> str:
     return clean_str
 
 
-def revers_date(date: str | datetime.datetime, no_change_type: bool = False) -> datetime.datetime :
+def revers_date(date: str | datetime.datetime, no_change_type: bool = False) -> datetime.datetime | float :
     """
     Rechange datetime.timestamp to datetime and back
     :param date: parameter what will be rechange to datatime or datatime.timestamp
     :param no_change_type: parameter what will stop rechange
     :return: parameter of datetime.datetime class
     """
-    global date1
     q = True
     for i in (str(date)):
         if i == ":":
