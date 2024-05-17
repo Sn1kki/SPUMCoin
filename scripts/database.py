@@ -6,7 +6,7 @@ import datetime
 # chat_id
 # language
 # start_use
-bots_name = ['Karl', 'Mark', 'Jim', 'Alex', 'Robert', 'Bob']
+
 
 
 def check_user(user_id: str | int) -> bool:
@@ -29,12 +29,11 @@ def check_user(user_id: str | int) -> bool:
 
 def create_user(user_id: int) -> None:
     """
-    Creates a new user in the database
-    :param user_id: message.chat.id
+    Creates new user in the database
+    :param user_id: message.chat.id -> user_id
     :return: None
     """
-    day, month, year, hour, minutes, seconds = map(int,
-                                                   datetime.datetime.now().strftime("%d %m %Y %H %M %S").split(" "))
+    day, month, year, hour, minutes, seconds = map(int, datetime.datetime.now().strftime("%d %m %Y %H %M %S").split(" "))
     date = datetime.datetime(year, month, day, hour, minutes, seconds)
     date = date.timestamp()
 
@@ -47,6 +46,13 @@ def create_user(user_id: int) -> None:
 
 
 def change_information(user_id: int, name_info: str, new_info_data: str) -> None:
+    """
+    Change information in database
+    :param user_id: user id, that will be used to change user data
+    :param name_info: name of information COLUMN
+    :param new_info_data: new information for this information COLUMN
+    :return: None
+    """
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
     cursor.execute(
@@ -59,6 +65,13 @@ def change_information(user_id: int, name_info: str, new_info_data: str) -> None
 
 
 def get_information(user_id: int, name_info: str, table_name: str = 'Users') -> str:
+    """
+    Get information out of database
+    :param user_id: user id, that will be used to get user data
+    :param name_info: name of information COLUMN
+    :param table_name: name of table default value 'Users'
+    :return: str(cursor.fetchone())
+    """
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
     cursor.execute(
@@ -79,12 +92,12 @@ def clean_fetchone(fetchone: str) -> str:
     return clean_str
 
 
-def revers_date(date: str | datetime.datetime, no_change_type: bool = False) -> datetime.datetime | float:
+def revers_date(date: str | datetime.datetime, no_change_type: bool = False) -> datetime.datetime :
     """
-
-    :param no_change_type:
-    :param date:
-    :return:
+    Rechange datetime.timestamp to datetime and back
+    :param date: parameter what will be rechange to datatime or datatime.timestamp
+    :param no_change_type: parameter what will stop rechange
+    :return: parameter of datetime.datetime class
     """
     global date1
     q = True
@@ -111,6 +124,7 @@ def exp_language() -> str:
 
 
 def get_bot_name() -> str:
+    bots_name = ['Karl', 'Mark', 'Jim', 'Alex', 'Robert', 'Bob']
     return random.choice(bots_name)
 
 

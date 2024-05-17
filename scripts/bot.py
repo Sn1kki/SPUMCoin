@@ -14,6 +14,7 @@ basic_markup.add(bnt_bm)
 hide_markup = types.ReplyKeyboardRemove()
 """
 
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     chat_id = message.chat.id
@@ -31,7 +32,7 @@ def send_welcome(message):
     bot.send_message(chat_id, text, reply_markup=btn)
 
 
-@bot.callback_query_handler(func= lambda callback: callback.data)
+@bot.callback_query_handler(func=lambda callback: callback.data)
 def callback(callback):
     chat_id = callback.message.chat.id
     if callback.data == 'sus':
@@ -42,7 +43,7 @@ def callback(callback):
             "Try /help command"
         )
 
-        database.change_information(chat_id,'language','sus')
+        database.change_information(chat_id, 'language', 'us')
 
         bot.edit_message_text(text, chat_id, callback.message.id)
     elif callback.data == 'sru':
@@ -53,7 +54,7 @@ def callback(callback):
             "Попробуйте команду /help"
         )
 
-        database.change_information(chat_id, 'language', 'sru')
+        database.change_information(chat_id, 'language', 'ru')
 
         bot.edit_message_text(text, chat_id, callback.message.id)
     elif callback.data == 'eus':
@@ -63,7 +64,9 @@ def callback(callback):
             "Code: '<Lcus>'"
         )
 
-        database.change_information(chat_id, 'language', 'cus')
+        database.change_information(chat_id, 'language', 'us')
+        changes_count = int(database.get_information(chat_id, 'language_changes')) + 1
+        database.change_information(chat_id, 'language_changes', str(changes_count))
 
         bot.edit_message_text(text, chat_id, callback.message.id)
     elif callback.data == 'eru':
@@ -73,7 +76,9 @@ def callback(callback):
             "Code: '<Lcru>'"
         )
 
-        database.change_information(chat_id, 'language', 'cru')
+        database.change_information(chat_id, 'language', 'ru')
+        changes_count = int(database.get_information(chat_id, 'language_changes')) + 1
+        database.change_information(chat_id, 'language_changes', str(changes_count))
 
         bot.edit_message_text(text, chat_id, callback.message.id)
 
@@ -81,6 +86,7 @@ def callback(callback):
 @bot.message_handler(commands=['help'])
 def help_message(message):
     chat_id = message.chat.id
+    language = database.get_information(chat_id, 'language')
 
     text_ru = (
         f"Приветствую!\n"
@@ -92,31 +98,37 @@ def help_message(message):
 
     text_us = 'None'
 
-    if database.exp_language() == "ru": text = text_ru
-    else: text = text_us
+    if language == "ru":
+        text = text_ru
+    else:
+        text = text_us
 
-    markup = types.ReplyKeyboardMarkup(row_width=1,resize_keyboard=True,one_time_keyboard=True)
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
     btn1 = types.KeyboardButton('✳ Изменить язык')
     btn2 = types.KeyboardButton('🛠 Команды')
     btn3 = types.KeyboardButton('🛎 Связаться с поддержкой')
     markup.add(btn1, btn2, btn3)
 
-
     bot.send_message(chat_id, text, reply_markup=markup)
+
 
 @bot.message_handler(content_types=['text'])
 def text_message(message):
-
     chat_id = message.chat.id
-    if message.text == "✳ Изменить язык": language_change(message)
-    elif message.text == "🛠 Команды": commands_list(message)
-    elif message.text == '🛎 Связаться с поддержкой': technical_support(message)
+    if message.text == "✳ Изменить язык":
+        language_change(message)
+    elif message.text == "🛠 Команды":
+        commands_list(message)
+    elif message.text == '🛎 Связаться с поддержкой':
+        technical_support(message)
+
 
 @bot.message_handler(commands=['run'])
 def run_cmd(message):
     chat_id = message.chat.id
     text = """ 
 """
+
 
 def language_change(message):
     chat_id = message.chat.id
@@ -134,6 +146,7 @@ def language_change(message):
 
     bot.send_message(chat_id, text, reply_markup=btn)
 
+
 def commands_list(message):
     chat_id = message.chat.id
     text = (
@@ -141,7 +154,8 @@ def commands_list(message):
         "/help -- Вызывает меню помощи\n"
         "/run -- Запускает игру"
     )
-    bot.send_message(chat_id,text)
+    bot.send_message(chat_id, text)
+
 
 def technical_support(message):
     chat_id = message.chat.id
@@ -149,9 +163,12 @@ def technical_support(message):
         "Техническая поддержка сейчас не доступна\n"
         "Code: '<Error 000>'"
     )
-    bot.send_message(chat_id,text)
+    bot.send_message(chat_id, text)
+
 
 @bot.message_handler(commands=['send db'])
 def send_db(message):
     pass
-bot.polling(non_stop=True,interval=0)
+
+
+bot.polling(non_stop=True, interval=0)
