@@ -19,7 +19,7 @@ def check_user(user_id: str | int) -> bool:
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
     cursor.execute(f"""
-    SELECT user_id FROM Users WHERE user_id = {user_id}
+    SELECT user_id FROM Users WHERE user_id = {str(user_id)}
 """)
     conn.commit()
     if cursor.fetchone() is None:
@@ -34,21 +34,17 @@ def create_user(user_id: int) -> None:
     :param user_id: message.chat.id -> user_id
     :return: None
     """
-    day, month, year, hour, minutes, seconds = map(int, datetime.datetime.now().strftime("%d %m %Y %H %M %S").split(" "))
-    date = datetime.datetime(year, month, day, hour, minutes, seconds)
-    date = date.timestamp()
+    if not check_user(user_id):
+        day, month, year, hour, minutes, seconds = map(int, datetime.datetime.now().strftime("%d %m %Y %H %M %S").split(" "))
+        date = datetime.datetime(year, month, day, hour, minutes, seconds)
+        date = date.timestamp()
 
-    conn = sqlite3.connect('base.db')
-    cursor = conn.cursor()
-    cursor.execute(
-    f"""
-    BEGIN TRANSACTION;
-    IF NOT EXISTS (SELECT * FROM Users WHERE user_id = '{user_id}')
-        INSERT INTO Users(user_id, language, language_changes, date_join, game_status) VALUES( {str(user_id)}, {'None'}, {'0'}, {int(date)}, {'None'} ) ;
-    COMMIT TRANSACTION;
-        """)
-    conn.commit()
-    cursor.close()
+        conn = sqlite3.connect('base.db')
+        cursor = conn.cursor()
+        cursor.execute(f""" INSERT INTO Users(user_id, language, language_changes, date_join, game_status) VALUES( {str(user_id)}, 'None', '0', {int(date)}, 'None' ) ;
+            """)
+        conn.commit()
+        cursor.close()
 
 
 def change_information(user_id: int, name_info: str, new_info_data: str) -> None:
@@ -134,5 +130,5 @@ def get_bot_name() -> str:
 
 
 if __name__ == "__main__":
-    a = get_information(1442148625, 'user_id')
-    print(a)
+    date_join = get_information(1220418199,'date_join')
+    print(revers_date(date_join))

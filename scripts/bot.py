@@ -15,9 +15,20 @@ hide_markup = types.ReplyKeyboardRemove()
 """
 
 
+def get_defaults_cottage(message : types.Message) -> dict:
+    defaults = {}
+    defaults['user_id'] = message.from_user.id
+    defaults['chat_id'] = message.chat.id
+    defaults['language'] = database.get_information(message.chat.id , 'language')
+    defaults['language_changes'] = database.get_information(message.chat.id, 'language_changes')
+    defaults['date_join'] = database.get_information(message.chat.id, 'date_join')
+    defaults['game_status'] = database.get_information(message.chat.id, 'game_status')
+    return defaults
+
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    chat_id = message.chat.id
+    defaults = get_defaults_cottage(message)
     text = (
         "Welcome to SPUMCoin!\n"
         "Choose your language\n"
@@ -27,14 +38,14 @@ def send_welcome(message):
     btn2 = types.InlineKeyboardButton(text='Russian', callback_data='sru')
     btn.add(btn1, btn2)
 
-    database.create_user(chat_id)
+    database.create_user(defaults['chat_id'])
 
-    bot.send_message(chat_id, text, reply_markup=btn)
+    bot.send_message(defaults['chat_id'], text, reply_markup=btn)
 
 
 @bot.callback_query_handler(func=lambda callback: callback.data)
 def callback(callback):
-    chat_id = callback.message.chat.id
+    defaults = get_defaults_cottage(callback.message)
     if callback.data == 'sus':
         text = (
             "Welcome to SPUMCoin!\n"
@@ -43,9 +54,9 @@ def callback(callback):
             "Try /help command"
         )
 
-        database.change_information(chat_id, 'language', 'us')
+        database.change_information(defaults['chat_id'], 'language', 'US')
 
-        bot.edit_message_text(text, chat_id, callback.message.id)
+        bot.edit_message_text(text, defaults['chat_id'], callback.message.id)
     elif callback.data == 'sru':
         text = (
             "Добро пожаловать в SPUMCoin.\n"
@@ -54,9 +65,9 @@ def callback(callback):
             "Попробуйте команду /help"
         )
 
-        database.change_information(chat_id, 'language', 'ru')
+        database.change_information(defaults['chat_id'], 'language', 'RU')
 
-        bot.edit_message_text(text, chat_id, callback.message.id)
+        bot.edit_message_text(text, defaults['chat_id'], callback.message.id)
     elif callback.data == 'eus':
         text = (
             "Changes complete\n"
@@ -64,11 +75,11 @@ def callback(callback):
             "Code: '<Lcus>'"
         )
 
-        database.change_information(chat_id, 'language', 'us')
-        changes_count = int(database.get_information(chat_id, 'language_changes')) + 1
-        database.change_information(chat_id, 'language_changes', str(changes_count))
+        database.change_information(defaults['chat_id'], 'language', 'US')
+        changes_count = defaults['language_changes']
+        database.change_information(defaults['chat_id'], 'language_changes', str(changes_count))
 
-        bot.edit_message_text(text, chat_id, callback.message.id)
+        bot.edit_message_text(text, defaults['chat_id'], callback.message.id)
     elif callback.data == 'eru':
         text = (
             "Изменения применены\n"
@@ -76,17 +87,16 @@ def callback(callback):
             "Code: '<Lcru>'"
         )
 
-        database.change_information(chat_id, 'language', 'ru')
-        changes_count = int(database.get_information(chat_id, 'language_changes')) + 1
-        database.change_information(chat_id, 'language_changes', str(changes_count))
+        database.change_information(defaults['chat_id'], 'language', 'RU')
+        changes_count = defaults['language_changes']
+        database.change_information(defaults['chat_id'], 'language_changes', str(changes_count))
 
-        bot.edit_message_text(text, chat_id, callback.message.id)
+        bot.edit_message_text(text, defaults['chat_id'], callback.message.id)
 
 
 @bot.message_handler(commands=['help'])
 def help_message(message):
-    chat_id = message.chat.id
-    language = database.get_information(chat_id, 'language')
+    defaults = get_defaults_cottage(message)
 
     text_ru = (
         f"Приветствую!\n"
@@ -96,11 +106,16 @@ def help_message(message):
 
     )
 
-    text_us = 'None'
+    text_us = (
+        f"Welcome!\n"
+        f"You have contacted the technical support of the Spum Coin bot.\n"
+        f"Working with you: Bot {database.get_bot_name()} \n\n"
+        f"What interests you at this moment?"
+    )
 
-    if language == "ru":
+    if defaults['language'] == 'RU':
         text = text_ru
-    else:
+    elif defaults['language'] == 'US':
         text = text_us
 
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
@@ -109,12 +124,12 @@ def help_message(message):
     btn3 = types.KeyboardButton('🛎 Связаться с поддержкой')
     markup.add(btn1, btn2, btn3)
 
-    bot.send_message(chat_id, text, reply_markup=markup)
+    bot.send_message(defaults['chat_id'], text, reply_markup=markup)
 
 
 @bot.message_handler(content_types=['text'])
 def text_message(message):
-    chat_id = message.chat.id
+    defaults = get_defaults_cottage(message)
     if message.text == "✳ Изменить язык":
         language_change(message)
     elif message.text == "🛠 Команды":
@@ -131,9 +146,9 @@ def run_cmd(message):
 
 
 def language_change(message):
-    chat_id = message.chat.id
+    defaults = get_defaults_cottage(message)
     text_us = (
-        f"Your language: '<None>'\n"
+        f"Your language: '< {defaults['language']} >'\n"
         "Choose your language\n"
     )
 
@@ -144,17 +159,19 @@ def language_change(message):
     btn2 = types.InlineKeyboardButton(text='Russian', callback_data='eru')
     btn.add(btn1, btn2)
 
-    bot.send_message(chat_id, text, reply_markup=btn)
+    bot.send_message(defaults['chat_id'], text, reply_markup=btn)
 
 
 def commands_list(message):
-    chat_id = message.chat.id
+    defaults = get_defaults_cottage(message)
+
     text = (
         "/start -- Начинает программу\n"
         "/help -- Вызывает меню помощи\n"
         "/run -- Запускает игру"
     )
-    bot.send_message(chat_id, text)
+
+    bot.send_message(defaults['chat_id'], text)
 
 
 def technical_support(message):
@@ -169,7 +186,6 @@ def technical_support(message):
 @bot.message_handler(commands=['send db'])
 def send_db(message):
     pass
-
 
 
 bot.polling(non_stop=True, interval=0)
