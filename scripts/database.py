@@ -61,6 +61,14 @@ def create_user(user_id: int) -> None:
         conn.commit()
         cursor.close()
 
+    def create_coin(user_id : int ) -> None:
+        conn = sqlite3.connect('base.db')
+        cursor = conn.cursor()
+        cursor.execute(
+            f""" INSERT INTO Users(user_id, language, language_changes, date_join, game_status) VALUES( {str(user_id)}, 'None', '0', {int(date)}, 'None' ) ;
+            """)
+        conn.commit()
+        cursor.close()
 
 def change_information(user_id: int, name_info: str, new_info_data: str) -> None:
     """

@@ -20,6 +20,7 @@ hide_markup = types.ReplyKeyboardRemove()
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    database.create_user(message.chat.id)
     User = database.get_table(message)
     text = (
         "Welcome to SPUMCoin!\n"
@@ -93,7 +94,7 @@ def help_message(message):
     text_ru = (
         f"Приветствую!\n"
         f"Вы обратились к техническую поддержку бота Spum Coin.\n"
-        f"С вами работает: Bot {database.get_bot_name(User['language'])} \n\n"
+        f"С вами работает: Бот {database.get_bot_name(User['language'])} \n\n"
         f"Что вас интересует в данную минуту?"
 
     )
@@ -119,6 +120,15 @@ def help_message(message):
     bot.send_message(User['chat_id'], text, reply_markup=markup)
 
 
+
+
+
+@bot.message_handler(commands=['game_text'])
+def run_cmd(message):
+    User = database.get_table(message)
+    text = """ 12434255"""
+    bot.send_message(message.chat.id,text)
+
 @bot.message_handler(content_types=['text'])
 def text_message(message):
     User = database.get_table(message)
@@ -129,22 +139,20 @@ def text_message(message):
     elif message.text == '🛎 Связаться с поддержкой':
         technical_support(message)
 
-
-@bot.message_handler(commands=['run'])
-def run_cmd(message):
-    chat_id = message.chat.id
-    text = """ 
-"""
-
-
 def language_change(message):
     User = database.get_table(message)
     text_us = (
-        f"Your language: '< {User['language']} >'\n"
+        f"Your language: English\n"
         "Choose your language\n"
     )
-
-    text = text_us
+    text_ru = (
+        f"Ваш язык: Русский'\n"
+        "Выберите язык\n"
+    )
+    if User['language'] == 'RU':
+        text = text_ru
+    elif User['language'] == 'US':
+        text = text_us
 
     btn = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton(text='English', callback_data='eus')
@@ -180,4 +188,4 @@ def send_db(message):
     pass
 
 
-bot.polling(none_stop=True, interval=10)
+bot.polling(none_stop=True, interval=0)
