@@ -1,6 +1,8 @@
 import random
 import sqlite3
 import datetime
+from telebot import types
+from copy import copy
 
 # user_id
 # chat_id
@@ -8,7 +10,20 @@ import datetime
 # language_change
 # date_join
 
-
+def get_table(message : types.Message, TABLE : str ='Users') -> dict:
+    defaults : dict = {}
+    conn = sqlite3.connect('base.db')
+    cursor = conn.cursor()
+    cursor.execute(f"""SELECT * FROM {TABLE} WHERE user_id='{message.chat.id}'""")
+    defaults['user_id'] = message.from_user.id
+    if TABLE == 'Users':
+        a = copy(cursor.fetchone())
+        defaults['chat_id'] = a[0]
+        defaults['language'] = a[1]
+        defaults['language_changes'] = a[2]
+        defaults['date_join'] = a[3]
+        defaults['game_status'] = a[4]
+    return defaults
 
 def check_user(user_id: str | int) -> bool:
     """
@@ -124,11 +139,18 @@ def exp_language() -> str:
     return "ru"
 
 
-def get_bot_name() -> str:
-    bots_name = ['Karl', 'Mark', 'Jim', 'Alex', 'Robert', 'Bob']
+def get_bot_name(language : str ) -> str:
+    if language == 'US':
+        bots_name = ['Karl', 'Mark', 'Jim', 'Alex', 'Robert', 'Bob']
+    elif language == 'RU':
+        bots_name = ['Александр', 'Дмитрий','Стас','Юрий','Алексей','Владислав']
     return random.choice(bots_name)
 
 
 if __name__ == "__main__":
-    date_join = get_information(1220418199,'date_join')
-    print(revers_date(date_join))
+    conn = sqlite3.connect('base.db')
+    cursor = conn.cursor()
+    cursor.execute(f"""
+        SELECT * FROM Users WHERE user_id='1442148625'
+    """)
+    print(cursor.fetchone())
