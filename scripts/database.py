@@ -4,17 +4,18 @@ import datetime
 from telebot import types
 from copy import copy
 
+
 # user_id
 # chat_id
 # language
 # language_change
 # date_join
 
-def get_table(message : types.Message, TABLE : str ='Users') -> dict:
-    defaults : dict = {}
+def get_table(message : types.Message, TABLE : str = 'Users') -> dict:
+    defaults: dict = {}
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
-    cursor.execute(f"""SELECT * FROM {TABLE} WHERE user_id='{message.chat.id}'""")
+    cursor.execute(f"""SELECT * FROM {TABLE} WHERE chat_id='{message.chat.id}'""")
     defaults['user_id'] = message.from_user.id
     if TABLE == 'Users':
         a = copy(cursor.fetchone())
@@ -25,16 +26,16 @@ def get_table(message : types.Message, TABLE : str ='Users') -> dict:
         defaults['game_status'] = a[4]
     return defaults
 
-def check_user(user_id: str | int) -> bool:
+
+def check_user(chat_id: str) -> bool:
     """
     Checks if the user exists in the database
-    :param user_id: message.chat.id
     :return: if the user exists in the database returns False, else returns True
     """
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
     cursor.execute(f"""
-    SELECT user_id FROM Users WHERE user_id = {str(user_id)}
+    SELECT chat_id FROM Users WHERE chat_id = {str(chat_id)}
 """)
     conn.commit()
     if cursor.fetchone() is None:
@@ -43,25 +44,27 @@ def check_user(user_id: str | int) -> bool:
         return True
 
 
-def create_user(user_id: int) -> None:
+def create_user(message: types.Message) -> None:
     """
     Creates new user in the database
-    :param user_id: message.chat.id -> user_id
+    :message
     :return: None
     """
-    if not check_user(user_id):
-        day, month, year, hour, minutes, seconds = map(int, datetime.datetime.now().strftime("%d %m %Y %H %M %S").split(" "))
+    if not check_user(str(message.chat.id)):
+        day, month, year, hour, minutes, seconds = map(int,
+                                                       datetime.datetime.now().strftime("%d %m %Y %H %M %S").split(" "))
         date = datetime.datetime(year, month, day, hour, minutes, seconds)
         date = date.timestamp()
 
         conn = sqlite3.connect('base.db')
         cursor = conn.cursor()
-        cursor.execute(f""" INSERT INTO Users(user_id, language, language_changes, date_join, game_status) VALUES( {str(user_id)}, 'None', '0', {int(date)}, 'None' ) ;
+        cursor.execute(
+            f""" INSERT INTO 'Users' (chat_id, language, language_changes, date_join, game_status) VALUES( {str(message.chat.id)}, 'None', '0', {int(date)}, 'None' ) ;
             """)
         conn.commit()
         cursor.close()
 
-    def create_coin(user_id : int ) -> None:
+    def create_coin(user_id: int) -> None:
         conn = sqlite3.connect('base.db')
         cursor = conn.cursor()
         cursor.execute(
@@ -70,7 +73,8 @@ def create_user(user_id: int) -> None:
         conn.commit()
         cursor.close()
 
-def change_information(user_id: int, name_info: str, new_info_data: str) -> None:
+
+def change_information(chat_id: int, name_info: str, new_info_data: str) -> None:
     """
     Change information in database
     :param user_id: user id, that will be used to change user data
@@ -83,13 +87,13 @@ def change_information(user_id: int, name_info: str, new_info_data: str) -> None
     cursor.execute(
         f"""UPDATE Users
         SET {name_info}='{str(new_info_data)}'
-        WHERE user_id={user_id}"""
+        WHERE chat_id={chat_id}"""
     )
     conn.commit()
     cursor.close()
 
 
-def get_information(user_id: int, name_info: str, table_name: str = 'Users') -> str:
+def get_information(chat_id : int, name_info: str, table_name: str = 'Users') -> str:
     """
     Get information out of database
     :param user_id: user id, that will be used to get user data
@@ -101,7 +105,7 @@ def get_information(user_id: int, name_info: str, table_name: str = 'Users') -> 
     cursor = conn.cursor()
     cursor.execute(
         f"""SELECT {name_info} FROM {table_name}
-        WHERE user_id = '{user_id}'
+        WHERE user_id = '{chat_id}'
         """
     )
     # cursor.execute(f"""UPDATE Users SET game='True' WHERE user_id={user_id}""")
@@ -117,7 +121,7 @@ def clean_fetchone(fetchone: str) -> str:
     return clean_str
 
 
-def revers_date(date: str | datetime.datetime, no_change_type: bool = False) -> datetime.datetime | float :
+def revers_date(date: str | datetime.datetime, no_change_type: bool = False) -> datetime.datetime | float:
     """
     Rechange datetime.timestamp to datetime and back
     :param date: parameter what will be rechange to datatime or datatime.timestamp
@@ -143,22 +147,14 @@ def revers_date(date: str | datetime.datetime, no_change_type: bool = False) -> 
         return datetime.datetime.fromtimestamp(date1.timestamp())
 
 
-def exp_language() -> str:
-    return "ru"
 
-
-def get_bot_name(language : str ) -> str:
+def get_bot_name(language: str) -> str:
     if language == 'US':
         bots_name = ['Karl', 'Mark', 'Jim', 'Alex', 'Robert', 'Bob']
     elif language == 'RU':
-        bots_name = ['Александр', 'Дмитрий','Стас','Юрий','Алексей','Владислав']
+        bots_name = ['Александр', 'Дмитрий', 'Стас', 'Юрий', 'Алексей', 'Владислав']
     return random.choice(bots_name)
 
 
 if __name__ == "__main__":
-    conn = sqlite3.connect('base.db')
-    cursor = conn.cursor()
-    cursor.execute(f"""
-        SELECT * FROM Users WHERE user_id='1442148625'
-    """)
-    print(cursor.fetchone())
+    pass
