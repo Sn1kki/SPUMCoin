@@ -16,14 +16,15 @@ def get_table(message : types.Message, TABLE : str = 'Users') -> dict:
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
     cursor.execute(f"""SELECT * FROM {TABLE} WHERE chat_id='{message.chat.id}'""")
-    defaults['user_id'] = message.from_user.id
     if TABLE == 'Users':
         a = copy(cursor.fetchone())
-        defaults['chat_id'] = a[0]
-        defaults['language'] = a[1]
-        defaults['language_changes'] = a[2]
-        defaults['date_join'] = a[3]
-        defaults['game_status'] = a[4]
+        defaults['user_id'] = a[0]
+        defaults['chat_id'] = a[1]
+        defaults['user_name'] = a[2]
+        defaults['language'] = a[3]
+        defaults['language_changes'] = a[4]
+        defaults['date_join'] = a[5]
+        defaults['game_status'] = a[6]
     return defaults
 
 
@@ -59,7 +60,7 @@ def create_user(message: types.Message) -> None:
         conn = sqlite3.connect('base.db')
         cursor = conn.cursor()
         cursor.execute(
-            f""" INSERT INTO 'Users' (chat_id, language, language_changes, date_join, game_status) VALUES( {str(message.chat.id)}, 'None', '0', {int(date)}, 'None' ) ;
+            f""" INSERT INTO Users(user_id ,chat_id, user_name, language, language_changes, date_join, game_status) VALUES( {str(message.from_user.id)}, {str(message.chat.id)}, 'None' , 'None', '0', {int(date)}, 'None' ) ;
             """)
         conn.commit()
         cursor.close()
@@ -77,7 +78,7 @@ def create_user(message: types.Message) -> None:
 def change_information(chat_id: int, name_info: str, new_info_data: str) -> None:
     """
     Change information in database
-    :param user_id: user id, that will be used to change user data
+    :param chat_id: chat id, that will be used to change user data
     :param name_info: name of information COLUMN
     :param new_info_data: new information for this information COLUMN
     :return: None
@@ -96,7 +97,7 @@ def change_information(chat_id: int, name_info: str, new_info_data: str) -> None
 def get_information(chat_id : int, name_info: str, table_name: str = 'Users') -> str:
     """
     Get information out of database
-    :param user_id: user id, that will be used to get user data
+    :param chat_id: chat id, that will be used to get user data
     :param name_info: name of information COLUMN
     :param table_name: name of table default value 'Users'
     :return: str(cursor.fetchone())

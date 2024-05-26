@@ -1,6 +1,7 @@
 import telebot
 from telebot import types
 import database
+
 with open("token.txt", 'r') as token_file:
     token: str = token_file.read()
 
@@ -19,15 +20,12 @@ hide_markup = types.ReplyKeyboardRemove()
 """
 
 
-
-
-
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     if database.check_user(message.chat.id):
         User = database.get_table(message)
-        bot.send_message(User['chat_id'],"Error: '<11D0>'")
-        bot.send_message(User['chat_id'],"You already exist. Try /menu")
+        bot.send_message(User['chat_id'], "Error: '<11D0>'")
+        bot.send_message(User['chat_id'], "You already exist. Try /menu")
     else:
         database.create_user(message)
         User = database.get_table(message)
@@ -84,9 +82,9 @@ def callback(callback):
         database.change_information(User['chat_id'], 'language_changes', str(changes_count))
 
         markup = types.InlineKeyboardMarkup(row_width=1)
-        btn_back = types.InlineKeyboardButton("⏮ Back",callback_data='menu_help')
+        btn_back = types.InlineKeyboardButton("⏮ Back", callback_data='menu_help')
         markup.add(btn_back)
-        bot.edit_message_text(text, User['chat_id'], callback.message.id,reply_markup=markup)
+        bot.edit_message_text(text, User['chat_id'], callback.message.id, reply_markup=markup)
     elif callback.data == 'language_edit_ru':
         text = (
             "Изменения применены\n"
@@ -106,13 +104,13 @@ def callback(callback):
     elif callback.data == 'help_back':
         menu_message(callback.message, True)
     elif callback.data == 'menu_help':
-        help_message(callback.message,True)
+        help_message(callback.message, True)
     elif callback.data == 'menu_about_us':
         about_us(callback.message)
     elif callback.data == 'help_language_change':
         language_change(callback.message)
     elif callback.data == 'help_commands_list':
-        commands_list(callback.message,True)
+        commands_list(callback.message, True)
     elif callback.data == 'help_contact_to_support':
         contact_to_support(callback.message)
 
@@ -144,14 +142,13 @@ def help_message(message, edit=False):
     if User['language'] == 'RU':
         text_btn1 = '✳ Изменить язык'
         text_btn2 = '🛠 Команды'
-        text_btn3 =  '🛎 Связаться с поддержкой'
+        text_btn3 = '🛎 Связаться с поддержкой'
         text_btn_back = '⏮ Назад'
     elif User['language'] == 'US':
         text_btn1 = '✳ Change language'
         text_btn2 = '🛠 Commands'
         text_btn3 = '🛎 Contact to support'
         text_btn_back = '⏮ Back'
-
 
     markup = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton(text_btn1, callback_data='help_language_change')
@@ -167,14 +164,6 @@ def help_message(message, edit=False):
         bot.edit_message_text(text, User['chat_id'], message.id, reply_markup=markup)
 
 
-
-
-
-@bot.message_handler(commands=['game_text'])
-def run_cmd(message):
-    User = database.get_table(message)
-    text = """ 12434255"""
-    bot.send_message(message.chat.id,text)
 
 
 @bot.message_handler(commands=['menu'])
@@ -212,23 +201,20 @@ def menu_message(message, edit=False):
         text_btn4 = "Game"
 
     markup = types.InlineKeyboardMarkup(row_width=2)
-    btn1 = types.InlineKeyboardButton(text=text_btn1,callback_data='menu_profile')
-    btn2 = types.InlineKeyboardButton(text=text_btn2,callback_data='menu_help')
-    btn3 = types.InlineKeyboardButton(text=text_btn3,callback_data='menu_about_us')
-    btn4 = types.InlineKeyboardButton(text=text_btn4,callback_data='menu_game')
-    markup.add(btn1,btn2,btn3,btn4)
-
-
+    btn1 = types.InlineKeyboardButton(text=text_btn1, callback_data='menu_profile')
+    btn2 = types.InlineKeyboardButton(text=text_btn2, callback_data='menu_help')
+    btn3 = types.InlineKeyboardButton(text=text_btn3, callback_data='menu_about_us')
+    btn4 = types.InlineKeyboardButton(text=text_btn4, callback_data='menu_game')
+    markup.add(btn1, btn2, btn3, btn4)
 
     # profile
     # help
     # about (authors + version + git)
     # game
     if not edit:
-        bot.send_message(User['chat_id'],text,reply_markup=markup)
+        bot.send_message(User['chat_id'], text, reply_markup=markup)
     else:
-        bot.edit_message_text(text,User['chat_id'],message.id, reply_markup=markup)
-
+        bot.edit_message_text(text, User['chat_id'], message.id, reply_markup=markup)
 
 
 def language_change(message):
@@ -261,7 +247,7 @@ def language_change(message):
     bot.edit_message_text(text, User['chat_id'], message.id, reply_markup=markup)
 
 
-def commands_list(message,edit = False):
+def commands_list(message, edit=False):
     User = database.get_table(message)
 
     text_ru = (
@@ -286,13 +272,14 @@ def commands_list(message,edit = False):
         text_btn_back = '⏮ Back'
 
     markup = types.InlineKeyboardMarkup(row_width=1)
-    btn_back = types.InlineKeyboardButton(text_btn_back,callback_data='menu_help')
+    btn_back = types.InlineKeyboardButton(text_btn_back, callback_data='menu_help')
     markup.add(btn_back)
 
     if not edit:
         bot.send_message(User['chat_id'], text)
     else:
         bot.edit_message_text(text, User['chat_id'], message.id, reply_markup=markup)
+
 
 def contact_to_support(message):
     User = database.get_table(message)
@@ -313,7 +300,7 @@ def contact_to_support(message):
         text_btn_back = '⏮ Back'
 
     markup = types.InlineKeyboardMarkup(row_width=1)
-    btn_back = types.InlineKeyboardButton(text_btn_back,callback_data='menu_help')
+    btn_back = types.InlineKeyboardButton(text_btn_back, callback_data='menu_help')
     markup.add(btn_back)
 
     bot.edit_message_text(text, User['chat_id'], message.id, reply_markup=markup)
@@ -358,16 +345,57 @@ def about_us(message):
 
     markup = types.InlineKeyboardMarkup(row_width=1)
     btn1 = types.InlineKeyboardButton('📄 GitHub', url='https://github.com/Sn1kki/SPUMCoin')
-    btn_back = types.InlineKeyboardButton(text_btn_back,callback_data='help_back')
-    markup.add(btn1,btn_back)
+    btn_back = types.InlineKeyboardButton(text_btn_back, callback_data='help_back')
+    markup.add(btn1, btn_back)
     bot.edit_message_text(text, User['chat_id'], message.id, reply_markup=markup)
 
 
+@bot.message_handler(commands=['profile'])
+def profile_message(message, edit=False):
+    User = database.get_table(message)
+    date , time = map(str, str(database.revers_date(User['date_join'])).split(' '))
+    text_ru = (
+        f"Имя пользователя: {User['user_name']}\n"
+        f"ID пользователя: {User['user_id']}\n"
+        f"\n"
+        f"Дата присоединения: {date}\n"
+    )
+    text_us = (
+        f"Username: {User['user_name']}\n"
+        f"User ID: {User['user_id']}\n"
+        f"\n"
+        f"Join date: {date}\n"
+    )
+    if User['language'] == 'RU':
+        text = text_ru
+    elif User['language'] == 'US':
+        text = text_us
+
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    btn1 = types.InlineKeyboardButton()
+
+    # Просмотреть чужой профиль
+    # Изменить профиль
+    # Посмотреть статистику coin
+    # Назад
+    #
 
 
-@bot.message_handler(commands=['send db'])
-def send_db(message):
-    pass
+    if not edit:
+        bot.send_message(User['chat_id'],text)
+    else:
+        bot.edit_message_text(text,User['chat_id'],message.id)
+
+
+
+def profile_other(text):
+    try:
+        command, id = map(str, str(text).split(' '))
+        if command == '/profile' and 0 < id < 1000000000000000:#bot.register_next_step_handler(message,)
+            return True
+        return False
+    except:
+        return False
 
 
 bot.polling(none_stop=True, interval=0)
