@@ -13,7 +13,7 @@ basic_markup.add(bnt_bm)
 
 hide_markup = types.ReplyKeyboardRemove()
 
-[[[]]]
+
 
 
 
@@ -22,8 +22,8 @@ hide_markup = types.ReplyKeyboardRemove()
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    if database.check_user(message.chat.id):
-        User = database.get_table(message)
+    if database.check_table(message.chat.id):
+        User = database.get_table(message.chat.id)
         bot.send_message(User['chat_id'], "Error: '<11D0>'")
         bot.send_message(User['chat_id'], "You already exist. Try /menu")
     else:
@@ -43,7 +43,7 @@ def send_welcome(message):
 
 @bot.callback_query_handler(func=lambda callback: callback.data)
 def callback(callback):
-    User = database.get_table(callback.message)
+    User = database.get_table(callback.message.chat.id)
     if callback.data == 'start_us':
         text = (
             "Welcome to SPUMCoin!\n"
@@ -101,23 +101,41 @@ def callback(callback):
         markup.add(btn_back)
 
         bot.edit_message_text(text, User['chat_id'], callback.message.id, reply_markup=markup)
-    elif callback.data == 'help_back':
-        menu_message(callback.message, True)
+
+    # Menu callback data
+    elif callback.data == "menu_profile":
+        profile_message(callback.message,True)
     elif callback.data == 'menu_help':
         help_message(callback.message, True)
     elif callback.data == 'menu_about_us':
         about_us(callback.message)
+    elif callback.data == 'menu_game':
+        pass
+    # Profile callback data
+    elif callback.data == 'profile_coin_profile':
+        pass
+    elif callback.data == 'profile_other_profile':
+        pass
+    elif callback.data == 'profile_edit_profile':
+        pass
+    elif callback.data == 'profile_delete_profile':
+        pass
+    elif callback.data == 'profile_back':
+        menu_message(callback.message,True)
+    # Help callback data
     elif callback.data == 'help_language_change':
         language_change(callback.message)
     elif callback.data == 'help_commands_list':
         commands_list(callback.message, True)
     elif callback.data == 'help_contact_to_support':
         contact_to_support(callback.message)
+    elif callback.data == 'help_back':
+        menu_message(callback.message, True)
 
 
 @bot.message_handler(commands=['help'])
 def help_message(message, edit=False):
-    User = database.get_table(message)
+    User = database.get_table(message.chat.id)
 
     text_ru = (
         f"Приветствую!\n"
@@ -168,7 +186,7 @@ def help_message(message, edit=False):
 
 @bot.message_handler(commands=['menu'])
 def menu_message(message, edit=False):
-    User = database.get_table(message)
+    User = database.get_table(message.chat.id)
     text_ru = (
         f"Добро пожаловать в меню SPUM Coin\n"
         f"Спасибо, что стали пользоваться нашем ботом\n"
@@ -218,7 +236,7 @@ def menu_message(message, edit=False):
 
 
 def language_change(message):
-    User = database.get_table(message)
+    User = database.get_table(message.chat.id)
     text_us = (
         f"Your language: English\n"
         "Choose your language\n"
@@ -248,7 +266,7 @@ def language_change(message):
 
 
 def commands_list(message, edit=False):
-    User = database.get_table(message)
+    User = database.get_table(message.chat.id)
 
     text_ru = (
         f"/start -- Начинает программу\n"
@@ -282,7 +300,7 @@ def commands_list(message, edit=False):
 
 
 def contact_to_support(message):
-    User = database.get_table(message)
+    User = database.get_table(message.chat.id)
     text_ru = (
         "Техническая поддержка сейчас не доступна\n"
         "Code: '<Error 000>'"
@@ -308,7 +326,7 @@ def contact_to_support(message):
 
 @bot.message_handler(commands=['about_us'])
 def about_us(message):
-    User = database.get_table(message)
+    User = database.get_table(message.chat.id)
     text_ru = (
         f"Приветствую вас!\n"
         f"\n"
@@ -352,7 +370,7 @@ def about_us(message):
 
 @bot.message_handler(commands=['profile'])
 def profile_message(message, edit=False):
-    User = database.get_table(message)
+    User = database.get_table(message.chat.id)
     date , time = map(str, str(database.revers_date(User['date_join'])).split(' '))
     text_ru = (
         f"Имя пользователя: {User['user_name']}\n"
@@ -368,34 +386,85 @@ def profile_message(message, edit=False):
     )
     if User['language'] == 'RU':
         text = text_ru
+        text_btn1 = "Статистика Coin"
+        text_btn2 = "Чужой профиль"
+        text_btn3 = "Изменить профиль"
+        text_btn4 = "Удалить аккаунт"
+        text_btn_back = '⏮ Назад'
     elif User['language'] == 'US':
-        text = text_us
+        text_btn1 = "Coin Statistics"
+        text_btn2 = "Someone else's profile"
+        text_btn3 = "Edit profile"
+        text_btn4 = "Delete account"
+        text_btn_back = '⏮ Back'
+
 
     markup = types.InlineKeyboardMarkup(row_width=2)
-    btn1 = types.InlineKeyboardButton()
-
-    # Просмотреть чужой профиль
-    # Изменить профиль
-    # Посмотреть статистику coin
-    # Назад
+    btn1 = types.InlineKeyboardButton(text_btn1, callback_data="profile_coin_profile")
+    btn2 = types.InlineKeyboardButton(text_btn2, callback_data="profile_other_profile")
+    btn3 = types.InlineKeyboardButton(text_btn3, callback_data="profile_edit_profile")
+    btn4 = types.InlineKeyboardButton(text_btn4, callback_data="profile_delete_profile")
+    markup.add(btn1,btn2,btn3,btn4)
+    if not edit:
+        bot.send_message(User['chat_id'],text,reply_markup=markup)
+    else:
+        markup.add(types.InlineKeyboardButton(text_btn_back,callback_data="profile_back"))
+        bot.edit_message_text(text,User['chat_id'],message.id,reply_markup=markup)
+    # # Посмотреть статистику coin.
+    # Просмотреть чужой профиль.
+    # Изменить профиль.
+    # Удалить аккаунт
+    # # Назад
     #
 
 
-    if not edit:
-        bot.send_message(User['chat_id'],text)
-    else:
-        bot.edit_message_text(text,User['chat_id'],message.id)
+def profile_other_st(message):
+    User = database.get_table(message.chat.id)
+    text_ru = (
+        f'Вы выбрали пункт "Просмотреть профиль другого пользователя"\n\n'
+        f'Напишите ID этого пользователя или нажмите кнопку отмены'
+    )
+    text_us = (
+        f"""You selected "View another user's profile"\n\n"""
+        f'Write this user ID or click cancel"'
+    )
 
 
 
-def profile_other(text):
-    try:
-        command, id = map(str, str(text).split(' '))
-        if command == '/profile' and 0 < id < 1000000000000000:#bot.register_next_step_handler(message,)
-            return True
-        return False
-    except:
-        return False
+
+def profile_other_sd(message):
+    is_user = database.check_table(message.text)
+    if is_user is True:
+        pass
+
+def profile_other_message(message):
+    User = database.get_table(message.chat.id)
+    Profile = database.get_table(message.text)
+    date, time = map(str, str(database.revers_date(Profile['date_join'])).split(' '))
+    text_ru = (
+        f"Имя пользователя: {Profile['user_name']}\n"
+        f"ID пользователя: {Profile['user_id']}\n"
+        f"\n"
+        f"Дата присоединения: {date}\n"
+    )
+    text_us = (
+        f"Username: {Profile['user_name']}\n"
+        f"User ID: {Profile['user_id']}\n"
+        f"\n"
+        f"Join date: {date}\n"
+    )
+    if User['language'] == 'RU':
+        text = text_ru
+        text_btn1 = "Статистика Coin"
+        text_btn_back = '⏮ Назад'
+    elif User['language'] == 'US':
+        text_btn1 = "Coin Statistics"
+        text_btn_back = '⏮ Back'
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    btn1 = types.InlineKeyboardButton(text_btn1, callback_data="profile_other_coin_profile")
+    markup.add(btn1)
+    markup.add(types.InlineKeyboardButton(text_btn_back, callback_data="menu_profile"))
+    bot.edit_message_text(text, message.chat.id, message.id, reply_markup=markup)
 
 
 bot.polling(none_stop=True, interval=0)

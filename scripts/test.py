@@ -1,40 +1,50 @@
-# # from math import floor
-# # for i in range(77):
-# #     print(1 + 0.25 * i )
-# #
-# #
-# #
-# # import math
-# # q = 0
-# # w = 0
-# # for i in range(12):
-# #     a = math.floor(1000000*(1.5**i))
-# #     q+=a
-# #     w += q
-# #     if q == (1 or 3 or 5 or 7 or 9 or 11):
-# #         w += q
-# #     print(f"total {w} ; Sum {q} ; prestige {a} ; i {i}")
-# # print("-------------------------")
-# # for prestige in range(11):
-# #     for factor in range(20):
-# #         for time in range(2, 13, 1):
-# #             a = 3600*time*(factor+1)*(prestige+1)
-# #             print(f"Coin Get -> {a} ; time {time} ; factor = {factor+1} ; prestige {prestige} ")
-# #
+from telebot import TeleBot, types
+
+with open("token.txt", 'r') as token_file:
+    token: str = token_file.read()
+
+bot = TeleBot(token)
+
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message: types.Message):
+    bot.send_message(chat_id=message.chat.id, text='Привет, как твое имя?')
+    bot.register_next_step_handler(message, get_name)
+
+
+def get_name(message: types.Message):
+    print(message.text)
+    # тут у вас то что ввел юзер
+    bot.send_message(chat_id=message.chat.id, text=f'Приятно познакомиться, {message.text}\n'
+                                                   f'А сколько тебе лет?')
+    bot.register_next_step_handler(message, get_age)
+
+
+def get_age(message: types.Message):
+    bot.send_message(chat_id=message.chat.id, text=f'Вау тебе уже, {message.text} лет\n'
+                                                   f'Как настроение?')
+    bot.register_next_step_handler(message, get_mood)
+
+
+def get_mood(message: types.Message):
+    bot.send_message(chat_id=message.chat.id, text=f'Отлично!\n')
+
+
+@bot.message_handler(commands=['pups'])
+def pups(message):
+    q = 0
+    text = ''
+    for i in str(message.text):
+        if q != 0:
+            text += i
+        if i == ' ':
+            q += 1
+    if q == 1 and str.isdigit(text):
+        text = str.isdigit(text)
+    else:
+        text = ''
+    bot.send_message(message.chat.id, text )
 
 
 
-"""
-CREATE TABLE IF NOT EXISTS Users(
-user_id TEXT ,
-chat_id TEXT ,
-user_name TEXT ,
-user_surname TEXT ,
-language TEXT ,
-language_changes ,
-date_join TEXT ,
-game_status TEXT ,
-
-)
-
-"""
+bot.infinity_polling(skip_pending=True)

@@ -5,17 +5,11 @@ from telebot import types
 from copy import copy
 
 
-# user_id
-# chat_id
-# language
-# language_change
-# date_join
-
-def get_table(message : types.Message, TABLE : str = 'Users') -> dict:
+def get_table(chat_id, TABLE : str = 'Users') -> dict:
     defaults: dict = {}
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
-    cursor.execute(f"""SELECT * FROM {TABLE} WHERE chat_id='{message.chat.id}'""")
+    cursor.execute(f"""SELECT * FROM {TABLE} WHERE chat_id='{chat_id}'""")
     if TABLE == 'Users':
         a = copy(cursor.fetchone())
         defaults['user_id'] = a[0]
@@ -25,18 +19,22 @@ def get_table(message : types.Message, TABLE : str = 'Users') -> dict:
         defaults['language_changes'] = a[4]
         defaults['date_join'] = a[5]
         defaults['game_status'] = a[6]
+    if TABLE == 'Coins':
+        pass
     return defaults
 
 
-def check_user(chat_id: str) -> bool:
+def check_table(chat_id: str, TABLE : str = "Users") -> bool:
     """
     Checks if the user exists in the database
+    :param chat_id: user chat id
+    :param TABLE: name of table in database
     :return: if the user exists in the database returns False, else returns True
     """
     conn = sqlite3.connect('base.db')
     cursor = conn.cursor()
     cursor.execute(f"""
-    SELECT chat_id FROM Users WHERE chat_id = {str(chat_id)}
+    SELECT chat_id FROM {TABLE} WHERE chat_id = {str(chat_id)}
 """)
     conn.commit()
     if cursor.fetchone() is None:
@@ -51,7 +49,7 @@ def create_user(message: types.Message) -> None:
     :message
     :return: None
     """
-    if not check_user(str(message.chat.id)):
+    if not check_table(str(message.chat.id)):
         day, month, year, hour, minutes, seconds = map(int,
                                                        datetime.datetime.now().strftime("%d %m %Y %H %M %S").split(" "))
         date = datetime.datetime(year, month, day, hour, minutes, seconds)
